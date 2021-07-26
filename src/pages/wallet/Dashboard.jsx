@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
@@ -20,6 +21,8 @@ import axios from 'axios';
 import WalletHeader from './WalletHeader';
 import Deposits from './Deposits';
 import Orders from './Orders';
+import fetchCurrency from '../../redux/actions/currencyActions';
+import processNewPayment from '../../redux/actions/paymentsActions';
 
 function Copyright() {
   return (
@@ -116,7 +119,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Dashboard({ userInfo }) {
+function Dashboard({
+  userInfo, loadCurrency, currency, newPayment, storedPayments,
+}) {
   const classes = useStyles();
   const [payments, setPayments] = React.useState([]);
   const [open, setOpen] = React.useState(true);
@@ -129,12 +134,26 @@ function Dashboard({ userInfo }) {
     const request = await axios.post('https://simply-wallet-api.herokuapp.com/searchpayments', {
       login: userInfo.login,
     });
-    setPayments(...request.data.payments);
+    setPayments([...request.data.payments]);
   };
 
-  useEffect(() => {
+  const deletePayment = async (id) => {
+    const request = await axios.post('https://simply-wallet-api.herokuapp.com/deletepayment', {
+      login: userInfo.login,
+      id,
+    });
     fetchPayments();
+  };
+
+  useEffect(async () => {
+    await fetchPayments();
+    await loadCurrency();
   }, []);
+
+  useEffect(async () => {
+    await fetchPayments();
+    await loadCurrency();
+  }, [storedPayments]);
 
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
@@ -169,19 +188,24 @@ function Dashboard({ userInfo }) {
             {/* WalletHeader */}
             <Grid item xs={12} md={8} lg={9}>
               <Paper className={fixedHeightPaper}>
-                <WalletHeader />
+                <WalletHeader
+                  fetchPayments={fetchPayments}
+                  login={userInfo.login}
+                  currency={currency}
+                  newPayment={newPayment}
+                />
               </Paper>
             </Grid>
             {/* Recent Deposits */}
             <Grid item xs={12} md={4} lg={3}>
               <Paper className={fixedHeightPaper}>
-                <Deposits />
+                <Deposits payments={payments} />
               </Paper>
             </Grid>
             {/* Recent Orders */}
             <Grid item xs={12}>
               <Paper className={classes.paper}>
-                <Orders payments={payments} />
+                <Orders deletePayment={deletePayment} payments={payments} />
               </Paper>
             </Grid>
           </Grid>
@@ -196,6 +220,17 @@ function Dashboard({ userInfo }) {
 
 const mapStateToProps = (state) => ({
   userInfo: state.loginReducer.user,
+  currency: state.currencyReducer,
+  storedPayments: state.paymentsReducer.payments,
 });
 
-export default connect(mapStateToProps, null)(Dashboard);
+const mapDispatchToProps = (dispatch) => ({
+  loadCurrency: () => dispatch(fetchCurrency()),
+  newPayment:
+    (value,
+      description,
+      method,
+      tag, currency,
+      login) => dispatch(processNewPayment(value, description, method, tag, currency, login)),
+});
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

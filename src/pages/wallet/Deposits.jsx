@@ -11,13 +11,13 @@ const useStyles = makeStyles({
   },
 });
 
-export default function Deposits({ total = 0 }) {
+export default function Deposits({ payments }) {
   const classes = useStyles();
   return (
     <>
-      <Title>Recent Deposits</Title>
+      <Title>Total</Title>
       <Typography component="p" variant="h4">
-        {total}
+        {payments.reduce((acc, e) => acc + Number(e.totalValue), 0)}
       </Typography>
       <Typography color="textSecondary" className={classes.depositContext}>
         on 25 jul, 2021

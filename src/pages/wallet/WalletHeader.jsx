@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -20,28 +20,34 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function WalletHeader({ currencyInfo }) {
+function WalletHeader({ currency, newPayment, login }) {
   const classes = useStyles();
-
+  const [currencyU, setCurrency] = useState('USD');
+  const [methodU, setMethod] = useState('Dinheiro');
+  const [tagU, setTag] = useState('Lazer');
+  const [valueU, setValue] = useState(0);
+  const [descriptionU, setDescription] = useState('');
   return (
     <>
       <div>
         <FormControl className={classes.formControl}>
-          <InputLabel id="demo-simple-select-label">Currency</InputLabel>
+          <InputLabel>Currency</InputLabel>
           <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
+            required
+            value={currencyU}
+            onChange={({ target }) => setCurrency(target.value)}
           >
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+            {
+              currency.map((e) => <MenuItem value={e.code}>{e.code}</MenuItem>)
+            }
           </Select>
         </FormControl>
         <FormControl className={classes.formControl}>
-          <InputLabel id="demo-simple-select-helper-label">Method</InputLabel>
+          <InputLabel>Method</InputLabel>
           <Select
-            labelId="demo-simple-select-helper-label"
-            id="demo-simple-select-helper"
+            required
+            value={methodU}
+            onChange={({ target }) => setMethod(target.value)}
           >
             {
               method.map((e) => <MenuItem value={e}>{e}</MenuItem>)
@@ -49,11 +55,11 @@ function WalletHeader({ currencyInfo }) {
           </Select>
         </FormControl>
         <FormControl className={classes.formControl}>
-          <InputLabel id="demo-simple-select-helper-label">Tag</InputLabel>
+          <InputLabel>Tag</InputLabel>
           <Select
-            displayEmpty
             className={classes.selectEmpty}
-            inputProps={{ 'aria-label': 'Without label' }}
+            value={tagU}
+            onChange={({ target }) => setTag(target.value)}
           >
             {
               tag.map((e) => <MenuItem value={e}>{e}</MenuItem>)
@@ -68,18 +74,37 @@ function WalletHeader({ currencyInfo }) {
         <FormControl className={classes.formControl}>
           <InputLabel>
             Value
-            <TextField />
+            <TextField
+              required
+              type="number"
+              value={valueU}
+              onChange={({ target }) => setValue(target.value)}
+            />
           </InputLabel>
         </FormControl>
         <FormControl className={classes.formControl}>
           <InputLabel>
             Description
-            <TextField />
+            <TextField
+              required
+              value={descriptionU}
+              onChange={({ target }) => setDescription(target.value)}
+            />
           </InputLabel>
         </FormControl>
         <FormControl className={classes.formControl}>
           <InputLabel>
-            <Button variant="contained" color="primary"> Add </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              onClick={() => newPayment(valueU, descriptionU, methodU, tagU, currencyU, login)}
+            >
+              {' '}
+              Add
+              {' '}
+
+            </Button>
           </InputLabel>
         </FormControl>
       </div>
