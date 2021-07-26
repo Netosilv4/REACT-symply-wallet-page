@@ -18,3 +18,7 @@ export const axiosLogin = (login, password) => async (dispatch) => {
   if (request.data.code !== 200) return dispatch(loginError(request.data.message));
   return dispatch(loginAction(request.data.info));
 };
+
+export const logout = () => ({
+  type: 'logout',
+});

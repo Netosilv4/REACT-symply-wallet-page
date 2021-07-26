@@ -18,11 +18,13 @@ import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import Button from '@material-ui/core/Button';
 import WalletHeader from './WalletHeader';
 import Deposits from './Deposits';
 import Orders from './Orders';
 import fetchCurrency from '../../redux/actions/currencyActions';
 import processNewPayment from '../../redux/actions/paymentsActions';
+import { logout } from '../../redux/actions/loginActions';
 
 function Copyright() {
   return (
@@ -120,7 +122,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Dashboard({
-  userInfo, loadCurrency, currency, newPayment, storedPayments,
+  userInfo, loadCurrency, currency, newPayment, storedPayments, logoutRequest,
 }) {
   const classes = useStyles();
   const [payments, setPayments] = React.useState([]);
@@ -174,6 +176,7 @@ function Dashboard({
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
             Symply Wallet
           </Typography>
+          <Button variant="contained" onClick={logoutRequest} color="secondary" type="button">Logout</Button>
           <IconButton color="inherit">
             <Badge badgeContent={4} color="secondary">
               <NotificationsIcon />
@@ -232,5 +235,6 @@ const mapDispatchToProps = (dispatch) => ({
       method,
       tag, currency,
       login) => dispatch(processNewPayment(value, description, method, tag, currency, login)),
+  logoutRequest: () => dispatch(logout()),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
